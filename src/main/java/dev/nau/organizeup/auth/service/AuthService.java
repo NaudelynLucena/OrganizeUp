@@ -1,0 +1,65 @@
+package dev.nau.organizeup.auth.service;
+
+import dev.nau.organizeup.auth.dto.AuthRequest;
+import dev.nau.organizeup.auth.dto.AuthResponse;
+import dev.nau.organizeup.auth.dto.RegisterRequest;
+import dev.nau.organizeup.exception.EmailAlreadyExistsException;
+import dev.nau.organizeup.exception.InvalidCredentialsException;
+import dev.nau.organizeup.security.jwt.JwtUtils;
+import dev.nau.organizeup.user.model.Role;
+import dev.nau.organizeup.user.model.User;
+import dev.nau.organizeup.user.repository.UserRepository;
+import org.springframework.security.authentication.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+@Service
+public class AuthService {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils;
+    private final AuthenticationManager authenticationManager;
+
+    public AuthService(UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtUtils jwtUtils,
+            AuthenticationManager authenticationManager) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.jwtUtils = jwtUtils;
+        this.authenticationManager = authenticationManager;
+    }
+
+    public AuthResponse register(RegisterRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new EmailAlreadyExistsException("Este email ya está registrado");
+        }
+
+        User user = new User();
+        user.setName(request.getName());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Role.USER);
+
+        userRepository.save(user);
+
+        String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        return new AuthResponse(token);
+    }
+
+    public AuthResponse login(AuthRequest request) {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
+        } catch (Exception e) {
+            throw new InvalidCredentialsException("Credenciales inválidas");
+        }
+
+        User user = userRepository.findByEmail(request.getEmail())
+                .orElseThrow(() -> new InvalidCredentialsException("Usuario no encontrado"));
+
+        String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
+        return new AuthResponse(token);
+    }
+}
