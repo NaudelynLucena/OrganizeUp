@@ -1,5 +1,7 @@
 package dev.nau.organizeup.user.model;
 
+import java.time.LocalDate;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -17,10 +19,15 @@ public class User {
 
     private String password;
 
+    @Column(name = "accumulated_points")
+    private int accumulatedPoints = 0;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }
