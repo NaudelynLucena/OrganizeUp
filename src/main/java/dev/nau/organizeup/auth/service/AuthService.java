@@ -2,6 +2,7 @@ package dev.nau.organizeup.auth.service;
 
 import dev.nau.organizeup.auth.dto.AuthRequest;
 import dev.nau.organizeup.auth.dto.AuthResponse;
+import dev.nau.organizeup.auth.dto.ChildRegisterRequest;
 import dev.nau.organizeup.auth.dto.RegisterRequest;
 import dev.nau.organizeup.exception.EmailAlreadyExistsException;
 import dev.nau.organizeup.exception.InvalidCredentialsException;
@@ -9,6 +10,9 @@ import dev.nau.organizeup.security.jwt.JwtUtils;
 import dev.nau.organizeup.user.model.Role;
 import dev.nau.organizeup.user.model.User;
 import dev.nau.organizeup.user.repository.UserRepository;
+
+import java.util.UUID;
+
 import org.springframework.security.authentication.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -62,4 +66,21 @@ public class AuthService {
         String token = jwtUtils.generateToken(user.getEmail(), user.getRole().name());
         return new AuthResponse(token);
     }
+
+    public User createChildAccount(ChildRegisterRequest request, String guardianEmail) {
+    User guardian = userRepository.findByEmail(guardianEmail)
+        .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
+
+    User child = new User();
+    child.setName(request.getName());
+    child.setBirthDate(request.getBirthDate());
+    child.setEmail(UUID.randomUUID().toString() + "@child.local");
+    child.setPassword("");
+    child.setManagedAccount(true);
+    child.setGuardian(guardian);
+    child.setRole(Role.CHILD);
+
+    return userRepository.save(child);
+}
+
 }
