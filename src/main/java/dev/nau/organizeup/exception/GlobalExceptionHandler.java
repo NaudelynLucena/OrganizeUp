@@ -36,4 +36,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleChildrenNotFoundException(ChildrenNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
     }
+
+    @ExceptionHandler(ForbiddenActionException.class)
+    public ResponseEntity<String> handleForbiddenAction(ForbiddenActionException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getMessage());
+    }
+
 }
