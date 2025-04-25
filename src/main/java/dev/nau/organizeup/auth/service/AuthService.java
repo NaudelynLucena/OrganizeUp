@@ -3,6 +3,7 @@ package dev.nau.organizeup.auth.service;
 import dev.nau.organizeup.auth.dto.AuthRequest;
 import dev.nau.organizeup.auth.dto.AuthResponse;
 import dev.nau.organizeup.auth.dto.ChildRegisterRequest;
+import dev.nau.organizeup.auth.dto.ChildRegisterResponse;
 import dev.nau.organizeup.auth.dto.RegisterRequest;
 import dev.nau.organizeup.exception.EmailAlreadyExistsException;
 import dev.nau.organizeup.exception.ForbiddenActionException;
@@ -68,7 +69,7 @@ public class AuthService {
         return new AuthResponse(token);
     }
 
-    public User createChildAccount(ChildRegisterRequest request, String guardianEmail) {
+    public ChildRegisterResponse createChildAccount(ChildRegisterRequest request, String guardianEmail) {
         User guardian = userRepository.findByEmail(guardianEmail)
                 .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
 
@@ -84,7 +85,9 @@ public class AuthService {
         String code = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
         child.setAccessCode(code);
 
-        return userRepository.save(child);
+        userRepository.save(child);
+        return new ChildRegisterResponse(child.getName(), child.getAccessCode());
+
     }
 
     public AuthResponse loginChild(String accessCode) {
