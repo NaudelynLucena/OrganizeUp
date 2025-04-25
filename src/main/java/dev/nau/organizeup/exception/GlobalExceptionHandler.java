@@ -32,4 +32,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(new ApiException(message), HttpStatus.BAD_REQUEST);
     }
 
+    @ExceptionHandler(ChildrenNotFoundException.class)
+    public ResponseEntity<String> handleChildrenNotFoundException(ChildrenNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getMessage());
+    }
 }
