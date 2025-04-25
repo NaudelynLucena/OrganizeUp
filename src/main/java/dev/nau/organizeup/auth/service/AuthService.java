@@ -5,6 +5,7 @@ import dev.nau.organizeup.auth.dto.AuthResponse;
 import dev.nau.organizeup.auth.dto.ChildRegisterRequest;
 import dev.nau.organizeup.auth.dto.RegisterRequest;
 import dev.nau.organizeup.exception.EmailAlreadyExistsException;
+import dev.nau.organizeup.exception.ForbiddenActionException;
 import dev.nau.organizeup.exception.InvalidCredentialsException;
 import dev.nau.organizeup.security.jwt.JwtUtils;
 import dev.nau.organizeup.user.model.Role;
@@ -68,19 +69,34 @@ public class AuthService {
     }
 
     public User createChildAccount(ChildRegisterRequest request, String guardianEmail) {
-    User guardian = userRepository.findByEmail(guardianEmail)
-        .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
+        User guardian = userRepository.findByEmail(guardianEmail)
+                .orElseThrow(() -> new RuntimeException("Tutor no encontrado"));
 
-    User child = new User();
-    child.setName(request.getName());
-    child.setBirthDate(request.getBirthDate());
-    child.setEmail(UUID.randomUUID().toString() + "@child.local");
-    child.setPassword("");
-    child.setManagedAccount(true);
-    child.setGuardian(guardian);
-    child.setRole(Role.CHILD);
+        User child = new User();
+        child.setName(request.getName());
+        child.setBirthDate(request.getBirthDate());
+        child.setEmail(UUID.randomUUID().toString() + "@child.local");
+        child.setPassword("");
+        child.setManagedAccount(true);
+        child.setGuardian(guardian);
+        child.setRole(Role.CHILD);
 
-    return userRepository.save(child);
-}
+        String code = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        child.setAccessCode(code);
+
+        return userRepository.save(child);
+    }
+
+    public AuthResponse loginChild(String accessCode) {
+        User child = userRepository.findByAccessCode(accessCode)
+                .orElseThrow(() -> new InvalidCredentialsException("Código inválido"));
+
+        if (child.getRole() != Role.CHILD) {
+            throw new ForbiddenActionException("Este código no pertenece a una cuenta infantil.");
+        }
+
+        String token = jwtUtils.generateToken(child.getEmail(), child.getRole().name());
+        return new AuthResponse(token);
+    }
 
 }
