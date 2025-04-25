@@ -2,7 +2,6 @@ package dev.nau.organizeup.auth.controller;
 
 import dev.nau.organizeup.auth.dto.*;
 import dev.nau.organizeup.auth.service.AuthService;
-import dev.nau.organizeup.user.model.User;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +31,8 @@ public class AuthController {
     public ResponseEntity<?> registerChild(@Valid @RequestBody ChildRegisterRequest request,
             Authentication authentication) {
         String guardianEmail = authentication.getName();
-        User child = authService.createChildAccount(request, guardianEmail);
-        return ResponseEntity.ok("Cuenta para " + child.getName() + " creada exitosamente.");
+        ChildRegisterResponse response = authService.createChildAccount(request, guardianEmail);
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login/child")
