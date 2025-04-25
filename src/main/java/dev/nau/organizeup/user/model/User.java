@@ -19,7 +19,7 @@ public class User {
     @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "password" , nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
 
     @Column(name = "accumulated_points")
@@ -39,11 +39,14 @@ public class User {
     @Column(name = "role", nullable = false)
     private Role role;
 
+    @Column(name = "access_code", unique = true)
+    private String accessCode;
+
     public User() {
     }
 
     public User(Long id, String name, String email, String password, int accumulatedPoints, LocalDate birthDate,
-            boolean managedAccount, User guardian, Role role) {
+            boolean managedAccount, User guardian, Role role, String accessCode) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -53,6 +56,7 @@ public class User {
         this.managedAccount = managedAccount;
         this.guardian = guardian;
         this.role = role;
+        this.accessCode = accessCode;
     }
 
     public Long getId() {
@@ -125,5 +129,13 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
+    }
+
+    public String getAccessCode() {
+        return accessCode;
+    }
+
+    public void setAccessCode(String accessCode) {
+        this.accessCode = accessCode;
     }
 }
