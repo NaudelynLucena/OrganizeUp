@@ -35,4 +35,11 @@ public class AuthController {
         User child = authService.createChildAccount(request, guardianEmail);
         return ResponseEntity.ok("Cuenta para " + child.getName() + " creada exitosamente.");
     }
+
+    @PostMapping("/login/child")
+    public ResponseEntity<AuthResponse> loginChild(@RequestBody ChildLoginRequest request) {
+        AuthResponse token = authService.loginChild(request.getAccessCode());
+        return ResponseEntity.ok(token);
+    }
+
 }
