@@ -10,15 +10,16 @@ public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "name", nullable = false)
     private String name;
 
-    @Column(unique = true, nullable = false)
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "password" , nullable = false)
     private String password;
 
     @Column(name = "accumulated_points")
@@ -27,6 +28,7 @@ public class User {
     @Column(name = "birth_date")
     private LocalDate birthDate;
 
+    @Column(name = "managed_account")
     private boolean managedAccount = false;
 
     @ManyToOne
@@ -34,6 +36,7 @@ public class User {
     private User guardian;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "role", nullable = false)
     private Role role;
 
     public User() {
