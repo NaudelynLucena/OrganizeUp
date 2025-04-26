@@ -68,4 +68,23 @@ public class JoinRequestController {
         joinRequestService.rejectRequest(id);
         return ResponseEntity.ok("Solicitud rechazada.");
     }
+
+    @GetMapping("/mine")
+    public ResponseEntity<List<JoinRequestResponse>> getMyRequests(Authentication authentication) {
+        String childEmail = authentication.getName();
+        User child = userRepository.findByEmail(childEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        List<JoinRequest> requests = joinRequestService.getRequestsForChild(child);
+
+        List<JoinRequestResponse> response = requests.stream()
+                .map(req -> new JoinRequestResponse(
+                        req.getId(),
+                        req.getChild().getName(),
+                        req.getGroup().getName(),
+                        req.getStatus().name()))
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(response);
+    }
 }
