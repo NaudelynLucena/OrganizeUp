@@ -5,11 +5,14 @@ import dev.nau.organizeup.group.dto.GroupResponse;
 import dev.nau.organizeup.group.dto.JoinGroupRequest;
 import dev.nau.organizeup.group.model.Group;
 import dev.nau.organizeup.group.service.GroupService;
+import dev.nau.organizeup.user.repository.UserRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/groups")
@@ -17,7 +20,7 @@ public class GroupController {
 
     private final GroupService groupService;
 
-    public GroupController(GroupService groupService) {
+    public GroupController(GroupService groupService, UserRepository userRepository) {
         this.groupService = groupService;
     }
 
@@ -39,4 +42,12 @@ public class GroupController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping
+    public ResponseEntity<List<GroupResponse>> getMyGroups(Authentication authentication) {
+        List<Group> groups = groupService.getGroupsForUser(authentication.getName());
+        List<GroupResponse> response = groups.stream()
+                .map(group -> new GroupResponse(group.getId(), group.getName(), group.getJoinCode()))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(response);
+    }
 }
