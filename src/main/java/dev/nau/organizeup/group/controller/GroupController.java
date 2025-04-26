@@ -2,6 +2,7 @@ package dev.nau.organizeup.group.controller;
 
 import dev.nau.organizeup.group.dto.CreateGroupRequest;
 import dev.nau.organizeup.group.dto.GroupResponse;
+import dev.nau.organizeup.group.dto.JoinGroupRequest;
 import dev.nau.organizeup.group.model.Group;
 import dev.nau.organizeup.group.service.GroupService;
 import org.springframework.http.ResponseEntity;
@@ -28,4 +29,14 @@ public class GroupController {
         GroupResponse response = new GroupResponse(group.getId(), group.getName(), group.getJoinCode());
         return ResponseEntity.ok(response);
     }
+
+    @PostMapping("/join")
+    public ResponseEntity<GroupResponse> joinGroup(@Valid @RequestBody JoinGroupRequest request,
+            Authentication authentication) {
+        String email = authentication.getName();
+        Group group = groupService.joinGroup(request.getJoinCode(), email);
+        GroupResponse response = new GroupResponse(group.getId(), group.getName(), group.getJoinCode());
+        return ResponseEntity.ok(response);
+    }
+
 }
