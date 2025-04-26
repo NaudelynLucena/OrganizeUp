@@ -8,6 +8,7 @@ import dev.nau.organizeup.group.repository.GroupRepository;
 import dev.nau.organizeup.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -61,5 +62,18 @@ public class GroupService {
 
         group.addMember(user);
         return groupRepository.save(group);
+    }
+
+    public Group saveGroup(Group group) {
+        return groupRepository.save(group);
+    }
+
+    public List<Group> getGroupsForUser(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return groupRepository.findAll().stream()
+                .filter(group -> group.isMember(user))
+                .toList();
     }
 }
