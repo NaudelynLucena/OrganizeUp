@@ -5,6 +5,7 @@ import dev.nau.organizeup.group.model.JoinRequest;
 import dev.nau.organizeup.group.model.RequestStatus;
 import dev.nau.organizeup.group.repository.JoinRequestRepository;
 import dev.nau.organizeup.user.model.User;
+import dev.nau.organizeup.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,9 +14,11 @@ import java.util.List;
 public class JoinRequestService {
 
     private final JoinRequestRepository joinRequestRepository;
+    private final UserRepository userRepository;
 
-    public JoinRequestService(JoinRequestRepository joinRequestRepository) {
+    public JoinRequestService(JoinRequestRepository joinRequestRepository, UserRepository userRepository) {
         this.joinRequestRepository = joinRequestRepository;
+        this.userRepository = userRepository;
     }
 
     public JoinRequest createJoinRequest(User child, Group group) {
@@ -29,7 +32,14 @@ public class JoinRequestService {
     }
 
     public List<JoinRequest> getRequestsForGuardian(User guardian) {
-        return List.of();
+        List<User> children = userRepository.findByGuardian(guardian);
+        if (children.isEmpty()) {
+            throw new RuntimeException("No tienes hijos registrados.");
+        }
+
+        return joinRequestRepository.findAll().stream()
+                .filter(req -> children.contains(req.getChild()) && req.getStatus() == RequestStatus.PENDING)
+                .toList();
     }
 
     public JoinRequest approveRequest(Long requestId) {
