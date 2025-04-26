@@ -55,4 +55,9 @@ public class JoinRequestService {
         request.setStatus(RequestStatus.REJECTED);
         return joinRequestRepository.save(request);
     }
+
+    public List<JoinRequest> getRequestsForChild(User child) {
+        return joinRequestRepository.findByChild(child);
+    }
+
 }
