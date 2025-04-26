@@ -36,4 +36,23 @@ public class GroupService {
 
         return groupRepository.save(group);
     }
+
+    public Group joinGroup(String joinCode, String userEmail) {
+        User user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        Group group = groupRepository.findByJoinCode(joinCode)
+                .orElseThrow(() -> new RuntimeException("Código de grupo no válido"));
+
+        if (group.isMember(user)) {
+            throw new ForbiddenActionException("Ya eres miembro de este grupo");
+        }
+
+        if (user.getRole() == Role.CHILD) {
+        }
+
+        group.addMember(user);
+        return groupRepository.save(group);
+    }
+
 }
