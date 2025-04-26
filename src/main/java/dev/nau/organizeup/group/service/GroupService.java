@@ -15,10 +15,13 @@ public class GroupService {
 
     private final GroupRepository groupRepository;
     private final UserRepository userRepository;
+    private final JoinRequestService joinRequestService;
 
-    public GroupService(GroupRepository groupRepository, UserRepository userRepository) {
+    public GroupService(GroupRepository groupRepository, UserRepository userRepository,
+            JoinRequestService joinRequestService) {
         this.groupRepository = groupRepository;
         this.userRepository = userRepository;
+        this.joinRequestService = joinRequestService;
     }
 
     public Group createGroup(String groupName, String creatorEmail) {
@@ -30,7 +33,6 @@ public class GroupService {
         }
 
         String joinCode = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
-
         Group group = new Group(groupName, joinCode);
         group.addMember(creator);
 
@@ -49,10 +51,15 @@ public class GroupService {
         }
 
         if (user.getRole() == Role.CHILD) {
+            joinRequestService.createJoinRequest(user, group);
+            throw new ForbiddenActionException("Solicitud enviada para aprobación de tu tutor.");
+        }
+
+        if (group.isFull()) {
+            throw new ForbiddenActionException("El grupo ya está completo.");
         }
 
         group.addMember(user);
         return groupRepository.save(group);
     }
-
 }
