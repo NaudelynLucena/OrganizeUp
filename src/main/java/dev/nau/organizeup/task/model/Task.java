@@ -13,7 +13,7 @@ public class Task {
     @Column(name = "task_id")
     private Long id;
 
-    @Column(name = "task_title", nullable = false, length = 255)
+    @Column(name = "task_title", nullable = false, length = 255, unique = true)
     private String title;
 
     @Column(name = "task_description", length = 1000)
