@@ -22,7 +22,7 @@ public class Reward {
     @Column(name = "points_cost", nullable = false)
     private int pointsCost;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = true)
     @JoinColumn(name = "group_id")
     private Group group;
 
