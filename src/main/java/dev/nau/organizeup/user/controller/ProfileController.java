@@ -1,5 +1,6 @@
 package dev.nau.organizeup.user.controller;
 
+import dev.nau.organizeup.exception.ResourceNotFoundException;
 import dev.nau.organizeup.user.dto.ProfileDto;
 import dev.nau.organizeup.user.model.User;
 import dev.nau.organizeup.user.repository.UserRepository;
@@ -23,16 +24,16 @@ public class ProfileController {
     public ResponseEntity<ProfileDto> getProfile(Authentication authentication) {
         String email = authentication.getName();
         User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         ProfileDto profileDto = new ProfileDto(
                 user.getId(),
                 user.getName(),
                 user.getEmail(),
                 user.getBirthDate(),
-                user.getAccumulatedPoints()
-        );
+                user.getAccumulatedPoints());
 
         return ResponseEntity.ok(profileDto);
     }
+
 }
