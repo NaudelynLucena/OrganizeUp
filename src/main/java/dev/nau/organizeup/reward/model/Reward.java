@@ -13,7 +13,7 @@ public class Reward {
     @Column(name = "reward_id")
     private Long id;
 
-    @Column(name = "reward_name", nullable = false)
+    @Column(name = "reward_name", nullable = false, unique = true, length = 255)
     private String name;
 
     @Column(name = "reward_description", length = 500)
